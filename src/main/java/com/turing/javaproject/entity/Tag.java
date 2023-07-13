@@ -10,7 +10,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "tag")
+@Table(name = "tag", schema = "public")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -11,7 +11,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "usr")
+@Table(name = "usr", schema = "public")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

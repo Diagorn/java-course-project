@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "comment")
+@Table(name = "comment", schema = "public")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
