@@ -1,37 +1,54 @@
 package com.turing.javaproject.rest;
 
 import com.turing.javaproject.entity.User;
-import com.turing.javaproject.repos.UserRepo;
+import com.turing.javaproject.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/users") //http://localhost:8080/api/v1/users/
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepo userRepo;
+    private final UserService userService;
 
     @GetMapping
-    @ResponseBody
     public ResponseEntity<List<User>> getAllUsers() {
-        return new ResponseEntity<>(userRepo.findAll(), HttpStatusCode.valueOf(200));
+        return ResponseEntity.ok(userService.getAll());
     }
 
-    @GetMapping("/{id}") //http://localhost:8080/api/v1/users/100500
-    @ResponseBody
+    @GetMapping("/{id}")
     public ResponseEntity<User> getById(@PathVariable Long id) {
-        return new ResponseEntity<>(userRepo.findById(id).get(), HttpStatusCode.valueOf(200));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getById(id));
+    }
+
+    @GetMapping("/username/{username}")
+    public ResponseEntity<User> getByUsername(@PathVariable String username) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getByUsername(username));
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<User> getByEmail(@PathVariable String email) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getByEmail(email));
     }
 
     @PostMapping
-    @ResponseBody
-    public ResponseEntity<?> addNewUser(@RequestBody User user) {
-        userRepo.save(user);
+    public ResponseEntity<User> addNewUser(@RequestBody User user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.add(user));
+    }
+
+    @PatchMapping
+    public ResponseEntity<User> updateUser(@RequestBody User user) {
+        return ResponseEntity.ok(userService.save(user));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteById(@PathVariable Long id) {
+        userService.delete(id);
         return ResponseEntity.ok().build();
     }
 }
