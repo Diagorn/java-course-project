@@ -1,7 +1,9 @@
 package com.turing.javaproject.exception.exceptions.common;
 
-public class WrongDateException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class WrongDateException extends BaseException {
     public WrongDateException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }
