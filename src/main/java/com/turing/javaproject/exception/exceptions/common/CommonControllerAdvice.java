@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class CommonControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BaseException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(BaseException e) {
+    public ResponseEntity<ErrorResponse> handleBaseException(BaseException e) {
         log.error(e.getMessage());
         e.printStackTrace();
         ErrorResponse response = new ErrorResponse(e.getStatus().value(), e.getMessage());
