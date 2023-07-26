@@ -1,10 +1,7 @@
 package com.turing.javaproject.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,6 +10,7 @@ import java.util.List;
 @Entity
 @Table(name = "usr", schema = "public")
 @Data
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends AbstractEntity{

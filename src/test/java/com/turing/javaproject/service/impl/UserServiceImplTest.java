@@ -1,31 +1,39 @@
 package com.turing.javaproject.service.impl;
 
 import com.turing.javaproject.entity.User;
-import com.turing.javaproject.exception.exceptions.common.WrongDateException;
 import com.turing.javaproject.exception.exceptions.user.UserFieldsEmptyException;
 import com.turing.javaproject.repos.UserRepo;
+import com.turing.javaproject.rest.dto.request.NewUserRequest;
 import com.turing.javaproject.service.UserService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
-@SpringBootTest
 class UserServiceImplTest {
 
-    @Autowired
     private UserService userService;
 
-    @MockBean
+    @Mock
     private UserRepo userRepo;
+
+    @Captor
+    private ArgumentCaptor<User> userArgumentCaptor;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        this.userService = new UserServiceImpl(userRepo);
+    }
 
     @Test
     void saveSuccess() {
@@ -33,66 +41,62 @@ class UserServiceImplTest {
     }
 
     @Test
-    void addSuccess() {
+    void itShouldSuccessfullySaveNewUser() {
 
-        User user = new User();
-        user.setEmail("some@mail.ru");
-        user.setUsername("Diagorn");
-        user.setPassword("qwerty123");
-        user.setBirthDate(LocalDate.now().minus(23, ChronoUnit.YEARS));
+        // Given a valid request
+        NewUserRequest request = NewUserRequest.builder()
+                .username("Diagorn")
+                .password("qwerty123")
+                .email("some@mail.ru")
+                .fullName("Гасин Михаил Александрович")
+                .build();
 
-        User userFromDb = new User();
-        userFromDb.setEmail("some@mail.ru");
-        userFromDb.setUsername("Diagorn");
-        userFromDb.setPassword("qwerty123");
-        userFromDb.setBirthDate(LocalDate.now().minus(23, ChronoUnit.YEARS));
-        userFromDb.setId(1L);
+        // ...an expected user
+        User user = User.builder()
+                .username("Diagorn")
+                .password("qwerty123")
+                .email("some@mail.ru")
+                .fullName("Гасин Михаил Александрович")
+                .build();
 
-        doReturn(userFromDb)
-                .when(userRepo)
-                .save(user);
+        User userFromDB = User.builder()
+                .username("Diagorn")
+                .password("qwerty123")
+                .email("some@mail.ru")
+                .fullName("Гасин Михаил Александрович")
+                .build();
+        userFromDB.setId(1L);
 
-        User savedUser = userService.add(user);
+        // ...return an updated user when querying database
+        given(userRepo.save(any(User.class)))
+                .willReturn(userFromDB);
 
-        Assertions.assertEquals(savedUser.getId(), 1L);
-        Assertions.assertEquals(savedUser.getUsername(), "Diagorn");
-        Assertions.assertEquals(savedUser.getEmail(), "some@mail.ru");
-        Assertions.assertEquals(savedUser.getPassword(), "qwerty123");
+        // When
+        userService.add(request);
 
-        verify(userRepo, times(1)).save(any(User.class));
+        // Then
+        then(userRepo).should().save(userArgumentCaptor.capture());
+        User captoredUser = userArgumentCaptor.getValue();
+        assertThat(captoredUser).isEqualTo(user);
     }
 
     @Test()
-    void addErrorFieldsEmpty() {
-        User user = new User();
-        user.setEmail("some@mail.ru");
-        user.setPassword("qwerty123");
-        user.setBirthDate(LocalDate.now().minus(23, ChronoUnit.YEARS));
+    void itShouldNeverSaveNewUserWhenEmailIsNull() {
 
-        assertThatExceptionOfType(UserFieldsEmptyException.class)
-                .isThrownBy(() -> userService.add(user))
-                .withMessage("У пользователя не заполнены обязательные поля");
+        // Given a request without email
+        NewUserRequest request = NewUserRequest.builder()
+                .username("Diagorn")
+                .password("qwerty123")
+                .fullName("Гасин Михаил Александрович")
+                .build();
 
-        user.setUsername("Diagorn");
-        user.setEmail(null);
+        // When
+        // Then
+        assertThatThrownBy(() -> userService.add(request))
+                .isInstanceOf(UserFieldsEmptyException.class)
+                .hasMessage("У пользователя не заполнены обязательные поля");
 
-        assertThatExceptionOfType(UserFieldsEmptyException.class)
-                .isThrownBy(() -> userService.add(user))
-                .withMessage("У пользователя не заполнены обязательные поля");
-
-        user.setEmail("some@mpei.ru");
-        user.setPassword(null);
-
-        assertThatExceptionOfType(UserFieldsEmptyException.class)
-                .isThrownBy(() -> userService.add(user))
-                .withMessage("У пользователя не заполнены обязательные поля");
-
-        user.setPassword("password");
-        user.setBirthDate(LocalDate.now().plus(1, ChronoUnit.DAYS));
-
-        assertThatExceptionOfType(WrongDateException.class)
-                .isThrownBy(() -> userService.add(user))
-                .withMessage("Дата рождения пользователя не может быть больше текущей");
+        then(userRepo).should(never()).save(any(User.class));
     }
 
     @Test

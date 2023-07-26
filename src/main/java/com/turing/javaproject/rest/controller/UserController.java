@@ -1,6 +1,10 @@
-package com.turing.javaproject.rest;
+package com.turing.javaproject.rest.controller;
 
 import com.turing.javaproject.entity.User;
+import com.turing.javaproject.rest.dto.request.NewUserRequest;
+import com.turing.javaproject.rest.dto.request.UpdateUserRequest;
+import com.turing.javaproject.rest.dto.response.NewUserResponse;
+import com.turing.javaproject.rest.dto.response.UserAllFields;
 import com.turing.javaproject.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,33 +21,33 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserAllFields>> getAllUsers() {
         return ResponseEntity.ok(userService.getAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable Long id) {
+    public ResponseEntity<UserAllFields> getById(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getById(id));
     }
 
     @GetMapping("/username/{username}")
-    public ResponseEntity<User> getByUsername(@PathVariable String username) {
+    public ResponseEntity<UserAllFields> getByUsername(@PathVariable String username) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getByUsername(username));
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> getByEmail(@PathVariable String email) {
+    public ResponseEntity<UserAllFields> getByEmail(@PathVariable String email) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getByEmail(email));
     }
 
     @PostMapping
-    public ResponseEntity<User> addNewUser(@RequestBody User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.add(user));
+    public ResponseEntity<NewUserResponse> addNewUser(@RequestBody NewUserRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.add(request));
     }
 
     @PatchMapping
-    public ResponseEntity<User> updateUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.save(user));
+    public ResponseEntity<UserAllFields> updateUser(@RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userService.save(request));
     }
 
     @DeleteMapping("/{id}")
