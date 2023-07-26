@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user) {
-        if (!userRepo.existsById(user.getId())) {
+        if (user.getId() == null || !userRepo.existsById(user.getId())) {
             throw new UserNotFoundException(String.format("Error updating user with id = %d. " +
                     "User with such id does not exist in the database", user.getId()));
         }
