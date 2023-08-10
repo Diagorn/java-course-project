@@ -1,5 +1,6 @@
 package com.turing.javaproject.config;
 
+import com.turing.javaproject.config.props.CronProperties;
 import com.turing.javaproject.job.SendEmailVerificationMessageJob;
 import com.turing.javaproject.job.SetDefaultAvatarJob;
 import lombok.RequiredArgsConstructor;
@@ -16,16 +17,11 @@ public class SchedulingConfig implements SchedulingConfigurer {
 
     private final SetDefaultAvatarJob setDefaultAvatarJob;
     private final SendEmailVerificationMessageJob sendEmailVerificationMessageJob;
-
-    @Value("${application.cron-task.send-email-cron}")
-    private String emailCron;
-
-    @Value("${application.cron-task.set-avatar-cron}")
-    private String avatarCron;
+    private final CronProperties cronProperties;
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-        taskRegistrar.addCronTask(setDefaultAvatarJob, avatarCron);
-        taskRegistrar.addCronTask(sendEmailVerificationMessageJob, emailCron);
+        taskRegistrar.addCronTask(setDefaultAvatarJob, cronProperties.getSetAvatarCron());
+        taskRegistrar.addCronTask(sendEmailVerificationMessageJob, cronProperties.getSendEmailCron());
     }
 }

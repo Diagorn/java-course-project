@@ -4,17 +4,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turing.javaproject.repos.UserRepo;
 import com.turing.javaproject.rest.dto.request.NewUserRequest;
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,13 +33,18 @@ class UserControllerTest {
     private UserController userController;
 
     @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @Autowired
     private UserRepo userRepo;
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    @Sql(value = "/sql/clear-usr-table.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @WithMockUser(value = "Admin", authorities = {"USER", "ADMIN"})
+    @Sql(value = {"/sql/after/clear-usr-table.sql", "/sql/before/add-roles.sql",
+            "/sql/before/insert-default-admin.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void itShouldAddNewUser() throws Exception {
         // Given a new user request
         String username = "Diagorn";
@@ -57,7 +69,7 @@ class UserControllerTest {
                     assertThat(u.getEmail()).isEqualTo(request.getEmail());
                     assertThat(u.getUsername()).isEqualTo(request.getUsername());
                     assertThat(u.getFullName()).isEqualTo(request.getFullName());
-                    assertThat(u.getPassword()).isEqualTo(request.getPassword());
+                    assertThat(u.getPassword()).isNotBlank();
                 });
     }
 

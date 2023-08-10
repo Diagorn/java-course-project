@@ -17,4 +17,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
     String findPasswordByUserId(@Param("id") Long id);
 
     List<User> findAllByAvatarUrlNull();
+
+    boolean existsByUsername(String username);
 }

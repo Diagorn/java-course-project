@@ -12,6 +12,6 @@ spring:
 
 application:
   cron-task:
-    send-email-cron: 0 30 * * * *
-    set-avatar-cron: 0 0 0 * * *
+    sendEmailCron: 0 30 * * * *
+    setAvatarCron: 0 0 0 * * *
   default-avatar-url: https://avatars.mds.yandex.net/i?id=2a00000189897119f543d020475301e4e349-1221853-fast-images&n=13

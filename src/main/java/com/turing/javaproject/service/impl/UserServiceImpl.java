@@ -1,29 +1,40 @@
 package com.turing.javaproject.service.impl;
 
+import com.turing.javaproject.entity.RoleEnum;
 import com.turing.javaproject.entity.User;
 import com.turing.javaproject.exception.exceptions.common.WrongDateException;
+import com.turing.javaproject.exception.exceptions.user.UserAlreadyExistsException;
 import com.turing.javaproject.exception.exceptions.user.UserFieldsEmptyException;
 import com.turing.javaproject.exception.exceptions.user.UserNotFoundException;
+import com.turing.javaproject.repos.RoleRepo;
 import com.turing.javaproject.repos.UserRepo;
 import com.turing.javaproject.rest.dto.request.NewUserRequest;
+import com.turing.javaproject.rest.dto.request.RegistrationRequest;
 import com.turing.javaproject.rest.dto.request.UpdateUserRequest;
 import com.turing.javaproject.rest.dto.response.NewUserResponse;
 import com.turing.javaproject.rest.dto.response.UserAllFields;
 import com.turing.javaproject.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepo userRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepo roleRepo;
 
     @Override
     public UserAllFields save(UpdateUserRequest request) {
@@ -59,12 +70,17 @@ public class UserServiceImpl implements UserService {
 
         User user = User.builder()
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .email(request.getEmail())
+                .roles(Collections.singleton(roleRepo.findByName(RoleEnum.USER.getName()).get()))
                 .build();
 
         checkUserRequiredFields(user);
+
+        if (userRepo.existsByUsername(request.getUsername())) {
+            throw new UserAlreadyExistsException(String.format("User with username %s already exists!", request.getUsername()));
+        }
 
         user = userRepo.save(user);
 
@@ -74,6 +90,25 @@ public class UserServiceImpl implements UserService {
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .build();
+    }
+
+    @Override
+    public void add(RegistrationRequest request) {
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .email(request.getEmail())
+                .roles(Collections.singleton(roleRepo.findByName(RoleEnum.USER.getName()).get()))
+                .build();
+
+        checkUserRequiredFields(user);
+
+        if (userRepo.existsByUsername(request.getUsername())) {
+            throw new UserAlreadyExistsException(String.format("User with username %s already exists!", request.getUsername()));
+        }
+
+        userRepo.save(user);
     }
 
     @Override
@@ -140,5 +175,10 @@ public class UserServiceImpl implements UserService {
                 .avatarUrl(user.getAvatarUrl())
                 .description(user.getDescription())
                 .build();
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepo.findByUsername(username).orElse(null);
     }
 }
