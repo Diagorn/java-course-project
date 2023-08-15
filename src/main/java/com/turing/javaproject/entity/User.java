@@ -7,19 +7,16 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "usr", schema = "public")
-@Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class User extends AbstractEntity implements UserDetails {
     @Column(name = "avatar", length = 50)
     private String avatarUrl;
@@ -74,5 +71,35 @@ public class User extends AbstractEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        User user = (User) o;
+
+        if (!Objects.equals(avatarUrl, user.avatarUrl)) return false;
+        if (!Objects.equals(description, user.description)) return false;
+        if (!username.equals(user.username)) return false;
+        if (!Objects.equals(fullName, user.fullName)) return false;
+        if (!email.equals(user.email)) return false;
+        if (!password.equals(user.password)) return false;
+        return Objects.equals(birthDate, user.birthDate);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (avatarUrl != null ? avatarUrl.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + username.hashCode();
+        result = 31 * result + (fullName != null ? fullName.hashCode() : 0);
+        result = 31 * result + email.hashCode();
+        result = 31 * result + password.hashCode();
+        result = 31 * result + (birthDate != null ? birthDate.hashCode() : 0);
+        return result;
     }
 }

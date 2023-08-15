@@ -1,19 +1,17 @@
 package com.turing.javaproject.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tag", schema = "public")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Tag extends AbstractEntity{
     @Column(name = "name", length = 100, nullable = false)
     private String name;
@@ -28,4 +26,24 @@ public class Tag extends AbstractEntity{
             joinColumns = @JoinColumn(name = "id_tag")
     )
     private List<Article> articles;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Tag tag = (Tag) o;
+
+        if (!Objects.equals(getId(), tag.getId())) return false;
+        return name.equals(tag.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
 }
