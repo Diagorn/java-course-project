@@ -13,10 +13,10 @@ import java.util.Objects;
 @Getter
 @Setter
 public class Comment extends AbstractEntity {
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_article")
     private Article article;
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user")
     private User author;
     @Column(name = "content", length = 240, nullable = false)

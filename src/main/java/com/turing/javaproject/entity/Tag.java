@@ -15,9 +15,9 @@ import java.util.Objects;
 public class Tag extends AbstractEntity{
     @Column(name = "name", length = 100, nullable = false)
     private String name;
-    @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Tag parent;
-    @OneToMany(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, mappedBy = "parent")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "parent")
     private List<Tag> children;
     @ManyToMany
     @JoinTable(

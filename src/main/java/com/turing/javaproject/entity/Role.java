@@ -16,7 +16,7 @@ public class Role extends AbstractEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "usr_roles",
         inverseJoinColumns = @JoinColumn(name = "id_usr", referencedColumnName = "id"),
         joinColumns = @JoinColumn(name = "id_role", referencedColumnName = "id"))

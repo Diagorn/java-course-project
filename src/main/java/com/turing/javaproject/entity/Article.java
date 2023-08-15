@@ -14,7 +14,7 @@ import java.util.Objects;
 @Getter
 @Setter
 public class Article extends AbstractEntity {
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user")
     private User author;
     @Column(name = "title", length = 250, nullable = false)
@@ -27,7 +27,7 @@ public class Article extends AbstractEntity {
     private String thumbnailUrl;
     @Column(name = "created_date", nullable = false)
     private LocalDateTime createdAt;
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH, mappedBy = "article")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "article")
     private List<Comment> comments;
     @ManyToMany
     @JoinTable(

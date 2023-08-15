@@ -32,9 +32,9 @@ public class User extends AbstractEntity implements UserDetails {
     private String password;
     @Column(name = "birth_date")
     private LocalDate birthDate;
-    @OneToMany(cascade = CascadeType.DETACH, mappedBy = "author", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "author", fetch = FetchType.LAZY)
     private List<Article> articles;
-    @OneToMany(cascade = CascadeType.DETACH, mappedBy = "author", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "author", fetch = FetchType.LAZY)
     private List<Comment> comments;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "usr_roles",
